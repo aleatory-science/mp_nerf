@@ -3,18 +3,18 @@
 import torch
 
 
-def get_prot(loader=None, vocab=None, split='train', min_len=80, max_len=150, verbose=False):
+def get_protein(scn_loader=None, scn_vocab=None, split='train', min_protein_len=80, max_protein_len=150, verbose=False):
     """ Gets a protein from sidechainnet and return the right attrs for training.
         Inputs: 
-        :param loader: sidechainnet iterator over dataset
-        :param vocab: sidechainnet VOCAB class
-        :param min_len: int. minimum sequence length
-        :param max_len: int. maximum sequence length
-        :param verbose: bool.
+        :param scn_loader: sidechainnet dataloader
+        :param scn_vocab: sidechainnet VOCAB class
+        :param int min_protein_len: Minimum number of amino acids in protein.
+        :param int max_protein_len: Maximum number of amino acids  in protein.
+        :param bool verbose: Verbose mode.
         Outputs: (cleaned, without padding)
         (seq_str, int_seq, coords, angles, padding_seq, mask, pid)
     """
-    for b, batch in enumerate(loader[split]):
+    for b, batch in enumerate(scn_loader[split]):
         for i in range(batch.int_seqs.shape[0]):
             # strip padding - matching angles to string means
             # only accepting prots with no missing residues (angles would be 0)
@@ -24,9 +24,9 @@ def get_prot(loader=None, vocab=None, split='train', min_len=80, max_len=150, ve
             if padding_seq == padding_angles:
                 #  check for appropiate length
                 real_len = batch.int_seqs[i].shape[0] - padding_seq
-                if max_len >= real_len >= min_len:
+                if max_protein_len >= real_len >= min_protein_len:
                     # strip padding tokens
-                    seq = ''.join([vocab.int2char(aa) for aa in batch.int_seqs[i].numpy()])
+                    seq = ''.join([scn_vocab.int2char(aa) for aa in batch.int_seqs[i].numpy()])
                     seq = seq[:-padding_seq or None]
                     int_seq = batch.int_seqs[i][:-padding_seq or None]
                     angles = batch.angs[i][:-padding_seq or None]
@@ -39,7 +39,7 @@ def get_prot(loader=None, vocab=None, split='train', min_len=80, max_len=150, ve
                 else:
                     if verbose:
                         print("found a seq of length:", batch.int_seqs[i].shape,
-                              "but oustide the threshold:", min_len, max_len)
+                              "but oustide the threshold:", min_protein_len, max_protein_len)
             else:
                 if verbose:
                     print("paddings not matching", padding_seq, padding_angles)

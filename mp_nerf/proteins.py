@@ -1,4 +1,4 @@
-from einops import rearrange
+from einops import rearrange, repeat
 
 from mp_nerf.kb_proteins import *
 from mp_nerf.massive_pnerf import *
