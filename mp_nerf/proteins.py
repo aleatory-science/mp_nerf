@@ -93,12 +93,12 @@ def build_scaffolds_from_scn_angles(seq, angles=None, coords=None, device="cpu")
     """ Builds scaffolds for fast access to data
         Inputs: 
         * seq: string of aas (1 letter code)
-        * angles: (L, 12) tensor containing the internal angles.
-                  Distributed as follows (following sidechainnet convention):
-                  * (L, 3) for torsion angles
-                  * (L, 3) bond angles
-                  * (L, 6) sidechain angles
-        * coords: (L, 3) sidechainnet coords. builds the mask with those instead
+        * angles: (l, 12) tensor containing the internal angles.
+                  distributed as follows (following sidechainnet convention):
+                  * (l, 3) for torsion angles
+                  * (l, 3) bond angles
+                  * (l, 6) sidechain angles
+        * coords: (l, 3) sidechainnet coords. builds the mask with those instead
                   (better accuracy if modified residues present).
         Outputs:
         * cloud_mask: (L, 14 ) mask of points that should be converted to coords 
@@ -176,21 +176,29 @@ def modify_scaffolds_with_coords(scaffolds, coords):
     return scaffolds
 
 
-def protein_fold(seq, angles, device="cpu", hybrid=False):
-    """ Calcs coords of a protein given it's
-        sequence and internal angles.
-        Inputs: 
-        * cloud_mask: (L, 14) mask of points that should be converted to coords 
-        * point_ref_mask: (3, L, 11) maps point (except n-ca-c) to idxs of
-                                     previous 3 points in the coords array
-        * angles_mask: (2, 14, L) maps point to theta and dihedral
-        * bond_mask: (L, 14) gives the length of the bond originating that atom
+def reverse_transformation(seq, angles, *, coords=None, device="cpu", hybrid=False):
+    """ Transform a protein from internal coordinates to cartesian (rectangular) coordinates.
 
-        Output: (L, 14, 3) and (L, 14) coordinates and cloud_mask
+        * seq: string of aas (1 letter code)
+        * angles:
+        :param seq: string of amino acids.
+        :param angles: (l, 12) tensor containing the internal angles.
+                          distributed as follows (following sidechainnet convention):
+                       (l, 3) for torsion angles
+                       (l, 3) bond angles
+                       (l, 6) sidechain angles
+        * coords: (l, 3) sidechainnet coords. builds the mask with those instead
+                  (better accuracy if modified residues present).
+        :param device:
+        :param bool hybrid:
+
+        :return: (L, 14, 3) and (L, 14) coordinates and cloud_mask
     """
     # automatic type (float, mixed, double) and size detection
     device = torch.device(device)
-    cloud_mask, point_ref_mask, angles_mask, bond_mask = build_scaffolds_from_scn_angles(seq, angles, device=device)
+    cloud_mask, point_ref_mask, angles_mask, bond_mask = build_scaffolds_from_scn_angles(seq, angles,
+                                                                                         coords=coords,
+                                                                                         device=device)
     precise = bond_mask.dtype
     length = cloud_mask.shape[0]
     # create coord wrapper

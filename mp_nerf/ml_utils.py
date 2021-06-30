@@ -113,7 +113,7 @@ def noise_internals(seq, angles=None, coords=None, noise_scale=0.5, theta_scale=
         scaffolds["angles_mask"][1] = noised_dihedrals
 
     #  reconstruct
-    return protein_fold(**scaffolds)
+    return reverse_transformation(**scaffolds)
 
 
 def combine_noise(true_coords, seq=None, int_seq=None, angles=None,

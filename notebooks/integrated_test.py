@@ -44,10 +44,10 @@ if __name__ == "__main__":
         # skip
         dataloaders_ = sidechainnet.load(casp_version=7, with_pytorch="dataloaders", batch_size=2)
         logger.info("Data has been loaded"+"\n"+sep)
-        stored  = [mp_nerf.utils.get_protein(scn_loader=dataloaders_,
-                                             scn_vocab=VOCAB,
-                                             min_protein_len=desired_len + 5,
-                                             max_protein_len=desired_len + 60) for desired_len in lengths]
+        stored  = [mp_nerf.utils.random_protein(scn_loader=dataloaders_,
+                                                scn_vocab=VOCAB,
+                                                min_protein_len=desired_len + 5,
+                                                max_protein_len=desired_len + 60) for desired_len in lengths]
         joblib.dump(stored, BASE_FOLDER[:-1]+"_manual/analyzed_prots.joblib")
     except: 
         stored = joblib.load(BASE_FOLDER[:-1]+"_manual/analyzed_prots.joblib")

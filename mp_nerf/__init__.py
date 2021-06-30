@@ -1,7 +1,7 @@
-from mp_nerf.proteins import protein_fold
-from mp_nerf.utils import get_protein
+from mp_nerf.proteins import reverse_transformation
+from mp_nerf.utils import random_protein
 
 __all__ = [
-    'protein_fold',
-    'get_protein'
+    'reverse_transformation',
+    'random_protein'
 ]

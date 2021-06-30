@@ -3,7 +3,7 @@
 import torch
 
 
-def get_protein(scn_loader=None, scn_vocab=None, split='train', min_protein_len=80, max_protein_len=150, verbose=False):
+def random_protein(scn_loader=None, scn_vocab=None, split='train', min_protein_len=80, max_protein_len=150, verbose=False):
     """ Gets a protein from sidechainnet and return the right attrs for training.
         Inputs: 
         :param scn_loader: sidechainnet dataloader
