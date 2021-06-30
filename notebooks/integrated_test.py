@@ -44,9 +44,9 @@ if __name__ == "__main__":
         # skip
         dataloaders_ = sidechainnet.load(casp_version=7, with_pytorch="dataloaders", batch_size=2)
         logger.info("Data has been loaded"+"\n"+sep)
-        stored  = [ mp_nerf.utils.get_prot(dataloader_=dataloaders_, 
-                                           vocab_=VOCAB, 
-                                           min_len=desired_len+5, 
+        stored  = [ mp_nerf.utils.get_prot(loader=dataloaders_,
+                                           vocab=VOCAB,
+                                           min_len=desired_len+5,
                                            max_len=desired_len+60) for desired_len in lengths ]
         joblib.dump(stored, BASE_FOLDER[:-1]+"_manual/analyzed_prots.joblib")
     except: 
