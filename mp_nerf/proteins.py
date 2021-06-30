@@ -1,7 +1,7 @@
 from einops import rearrange, repeat
 
 from mp_nerf.kb_proteins import *
-from mp_nerf.massive_pnerf import *
+from mp_nerf.massive_pnerf import orthonormal_basis, mp_nerf_torch
 from mp_nerf.utils import *
 
 
@@ -206,7 +206,7 @@ def reverse_transformation(seq, angles, *, coords=None, device="cpu", hybrid=Fal
 
     # do first AA
     coords[0, 1] = coords[0, 0] + torch.tensor([1, 0, 0], device=device, dtype=precise) * BB_BUILD_INFO["BONDLENS"][
-        "n-ca"]
+        "n-ca"]  # TODO: why not use initial positions suggested in pnerf?
     coords[0, 2] = coords[0, 1] + torch.tensor([torch.cos(np.pi - angles_mask[0, 0, 2]),
                                                 torch.sin(np.pi - angles_mask[0, 0, 2]),
                                                 0.], device=device, dtype=precise) * BB_BUILD_INFO["BONDLENS"]["ca-c"]
@@ -240,10 +240,10 @@ def reverse_transformation(seq, angles, *, coords=None, device="cpu", hybrid=Fal
     # sequential pass to join fragments
     #########
     # part of rotation mat corresponding to origin - 3 orthogonals
-    mat_origin = get_axis_matrix(init_a[0], init_b[0], coords[0, 0], norm=False)
+    mat_origin = orthonormal_basis(init_a[0], init_b[0], coords[0, 0], norm=False)
     # part of rotation mat corresponding to destins || a, b, c = CA, C, N+1
     # (L-1) since the first is in the origin already 
-    mat_destins = get_axis_matrix(coords[:-1, 1], coords[:-1, 2], coords[:-1, 3])
+    mat_destins = orthonormal_basis(coords[:-1, 1], coords[:-1, 2], coords[:-1, 3])
 
     # get rotation matrices from origins
     # https://math.stackexchange.com/questions/1876615/rotation-matrix-from-plane-a-to-b
